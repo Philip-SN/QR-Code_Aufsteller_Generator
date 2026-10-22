@@ -1,0 +1,11 @@
+@layer reset, main, reducedmotion;
+
+@import url("noicss/reset") layer(reset);
+@import url("noicss/reducedmotion") layer(reducedmotion);
+
+@layer main {
+  body {
+    font-family: Lato, Arial, Helvetica, sans-serif;
+    background-color: #353535;
+  }
+}
