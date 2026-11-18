@@ -4,8 +4,408 @@
 @import url("noicss/reducedmotion") layer(reducedmotion);
 
 @layer main {
+  :root {
+    --pageBg: #2e2e2e;
+    --cardBg: #484848;
+    --textPrimary: #f9fafb;
+    --textMuted: color-mix(in oklch shorter hue, var(--textPrimary) 61%, var(--cardBg));
+    --inputBg: #202020;
+    --accentColor: #0358a9;
+    --accentColorHover: #076dce;
+    --accentMuted: color-mix(in oklch shorter hue, var(--accentColor) 33%, var(--inputBg));
+    --borderSubtle: color-mix(in oklch shorter hue, var(--textPrimary) 12%, transparent);
+    --danger: #ef4444;
+    --cardPadding: 1.2rem;
+    --btnBorderRadius: 4px;
+    --inputBorderSize: 2px;
+    --outlineColor: var(--accentColorHover);
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   body {
-    font-family: Lato, Arial, Helvetica, sans-serif;
-    background-color: #353535;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--textPrimary);
+    font-family: Lato, Avenir, "Adobe Heiti Std", "Segoe UI", "Trebuchet MS", sans-serif;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    background-color: var(--pageBg);
+  }
+
+  main {
+    padding: 2rem 1.5rem 1.5rem;
+    width: min(100%, 1400px);
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  h1 {
+    margin-block-end: 0.875em;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* cards */
+  .cards-cont {
+    display: grid;
+    grid-template-columns: 1fr;
+    flex-grow: 1;
+    gap: calc(var(--cardPadding) * 1.618);
+
+    @media (width >= 1200px) {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+
+  .card {
+    padding: var(--cardPadding);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--cardPadding) / 1.618);
+    border: 1px solid var(--borderSubtle);
+    border-radius: calc(var(--btnBorderRadius) + var(--cardPadding));
+    background: var(--cardBg);
+    box-shadow: 0 0.125rem 0.333rem var(--inputBg);
+
+    &:nth-child(1 of .card) {
+      align-self: start;
+    }
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-box: cap alphabetic trim-both;
+
+    & span {
+      margin-inline-start: 0.5rem;
+    }
+  }
+
+  /* input tabs */
+  .mode-toggle {
+    padding: var(--inputBorderSize);
+    display: flex;
+    gap: var(--inputBorderSize);
+    border-radius: var(--btnBorderRadius);
+    background: var(--inputBg);
+
+    & .mode-toggle-btn {
+      flex-grow: 1;
+      border-radius: calc(var(--btnBorderRadius) - var(--inputBorderSize));
+      background-color: transparent;
+      opacity: 0.8;
+      transition:
+        background-color 0.15s linear,
+        opacity 0.15s linear;
+
+      &:hover {
+        background-color: var(--accentMuted);
+        opacity: 1;
+      }
+
+      &.active {
+        background-color: var(--accentColor);
+        opacity: 1;
+      }
+    }
+  }
+
+  .tab-pane {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+
+  /* url/text input */
+  .input-label {
+    margin-block-end: calc(calc(var(--cardPadding) / 1.618) / 1.618);
+    display: inline-block;
+  }
+
+  .text-input {
+    padding: 0.5em 0.75em;
+    width: 100%;
+    border: var(--inputBorderSize) solid var(--inputBg);
+    border-radius: var(--btnBorderRadius);
+    background: var(--inputBg);
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:is(:focus, :focus-visible) {
+      border-color: var(--accentColor);
+    }
+  }
+
+  .input-hint {
+    margin-block-start: calc(calc(var(--cardPadding) / 1.618) / 1.618);
+    color: var(--textMuted);
+    font-size: 0.875rem;
+    line-height: 1.333;
+  }
+
+  /* img upload */
+  .dropzone {
+    padding: 1rem;
+    position: relative;
+    border: var(--inputBorderSize) dashed var(--textMuted);
+    border-radius: var(--btnBorderRadius);
+    background: var(--inputBg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+
+    &:focus-within {
+      outline: 2px solid var(--outlineColor);
+      outline-offset: 4px;
+    }
+    &:is(:hover, :focus-visible, :focus-within, .dragover):not(:has(#removeImgBtn:hover)) {
+      border-color: var(--accentColorHover);
+      background: var(--accentMuted);
+    }
+  }
+
+  #imgFileInput {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  #dropzoneEmpty,
+  #dropzoneLoaded {
+    /* class is set dynamically in js */
+    &.hide {
+      display: none;
+    }
+  }
+
+  .file-empty-card {
+    margin-block-start: -0.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+
+    & .upload-icon {
+      width: 32px;
+      height: 32px;
+      color: var(--accentColorHover);
+    }
+
+    & .dropzone-title {
+      font-weight: 700;
+    }
+
+    & .highlight-link {
+      color: color-mix(in oklch shorter hue, var(--accentColor), var(--textPrimary));
+      text-decoration: underline;
+    }
+
+    & .file-types-tag {
+      margin-block-start: calc(calc(var(--cardPadding) / 1.618) / 1.618);
+      padding: 0.5em 0.75rem;
+      display: inline-block;
+      color: var(--textMuted);
+      font-size: 0.875rem;
+      border-radius: calc(var(--btnBorderRadius) / 2);
+      background: color-mix(in oklch shorter hue, currentColor 12%, transparent);
+    }
+  }
+
+  .file-loaded-card {
+    padding: calc(var(--cardPadding) / 1.618);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--cardPadding) / 1.618);
+    text-align: left;
+    border-radius: var(--btnBorderRadius);
+    background: var(--cardBg);
+
+    & .file-thumb-container {
+      padding: var(--inputBorderSize);
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: stretch;
+      border-radius: var(--btnBorderRadius);
+      background: #fff;
+
+      & img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    & .file-details {
+      flex-grow: 1;
+      font-size: 0.875rem;
+
+      & .file-name {
+        font-size: inherit;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      & .file-size {
+        color: var(--textMuted);
+        font-size: inherit;
+      }
+    }
+  }
+
+  /* buttons */
+  .btn {
+    padding: 0.5em 0.75em;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5cap;
+    color: var(--textPrimary);
+    font-family: inherit;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    border-radius: var(--btnBorderRadius);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      border-color 0.15s linear,
+      background-color 0.15s linear;
+
+    &.primary-btn {
+      background-color: var(--accentColor);
+
+      &:is(:hover, :focus-visible) {
+        background-color: var(--accentColorHover);
+      }
+    }
+
+    &.secondary-btn {
+      border: 1px solid var(--borderSubtle);
+      background-color: var(--cardBg);
+
+      &:is(:hover, :focus-visible) {
+        background-color: var(--accentColor);
+      }
+    }
+
+    &.danger {
+      background-color: var(--inputBg);
+
+      &:is(:hover, :focus-visible) {
+        color: var(--textPrimary);
+        border-color: var(--danger);
+        background-color: var(--danger);
+      }
+    }
+
+    &.icon-only {
+      padding: 0.5em;
+      aspect-ratio: 1;
+    }
+
+    & svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+  }
+
+  /* preview section */
+  .pdf-preview-cont {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* <- for overlay */
+    border-radius: var(--btnBorderRadius);
+    background: var(--inputBg);
+    overflow: hidden;
+  }
+
+  .pdf-preview-iframe {
+    width: 100%;
+    height: calc(calc(100vw - 5.4rem - 18px) * 1.42 + 56px);
+    max-height: 226mm;
+    display: block;
+    border: none;
+
+    @media (width >= 1200px) {
+      height: 100%;
+    }
+  }
+
+  .pdf-loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    position: absolute;
+    inset: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    background: rgb(0 0 0 / 66%);
+    backdrop-filter: blur(5px);
+
+    & .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
+
+  /* preview btns */
+  .preview-btns {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--cardPadding) / 1.618);
+
+    @media (width >= 500px) {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+    }
+
+    & .icon-only {
+      aspect-ratio: initial;
+
+      @media (width >= 500px) {
+        aspect-ratio: 1;
+      }
+    }
+
+    & #newTabBtnText {
+      display: inline;
+
+      @media (width >= 500px) {
+        display: none;
+      }
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 }

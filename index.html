@@ -5,12 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&display=swap" />
     <link rel="stylesheet" href="./src/style.css" />
     <script type="module" src="./src/script.js"></script>
-    <title>QR-Code Aufsteller Generator</title>
+    <title>QR-Code-Aufsteller Generator</title>
   </head>
   <body>
-    <h1>QR-Code Aufsteller Generator</h1>
+    <main>
+      <h1>SN-Card QR-Code-Aufsteller Generator</h1>
+      <div class="cards-cont">
+        <section class="card">
+          <h2 class="card-title">QR-Code Inhalt</h2>
+
+          <div class="mode-toggle" role="tablist">
+            <button id="urlTab" class="btn mode-toggle-btn active" role="tab" aria-controls="urlPane" aria-selected="true" type="button">
+              <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              URL / Text
+            </button>
+            <button id="imgTab" class="btn mode-toggle-btn" role="tab" aria-controls="imgPane" aria-selected="false" type="button">
+              <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              Bild hochladen
+            </button>
+          </div>
+
+          <div id="urlPane" class="tab-pane active" role="tabpanel">
+            <label class="input-label" for="urlInput">Ziel-URL oder Text des QR-Codes:</label>
+            <input id="urlInput" class="text-input" type="text" value="" placeholder="https://www.sn.at/sn-card/" autocomplete="off" spellcheck="false" />
+            <p class="input-hint">Der QR-Code wird 1:1 aus diesem Input erzeugt und somit kein URL&#x2011;shortening o.Ä. vorgenommen.</p>
+          </div>
+
+          <div id="imgPane" class="tab-pane" role="tabpanel">
+            <div id="imgDropzone" class="dropzone">
+              <input id="imgFileInput" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,image/gif,image/bmp" />
+              <div id="dropzoneEmpty" class="file-empty-card">
+                <svg class="upload-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                  <title>Upload</title>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p class="dropzone-title">fertigen QR-Code hier ablegen</p>
+                <p class="dropzone-subtitle">oder <span class="highlight-link">Datei auswählen</span></p>
+                <p class="file-types-tag">Dateityp: SVG, PNG, JPG, WebP, GIF, BMP</p>
+              </div>
+
+              <div id="dropzoneLoaded" class="file-loaded-card hide">
+                <div class="file-thumb-container" id="imgThumbContainer">
+                  <img id="imgThumb" alt="Bild-Vorschau" src="" />
+                </div>
+                <div class="file-details">
+                  <p class="file-name" id="imgFileName">Dateiname.svg</p>
+                  <p class="file-size" id="imgFileSize">0 KB</p>
+                </div>
+                <button type="button" id="removeImgBtn" class="btn secondary-btn danger icon-only" title="Bild entfernen">
+                  <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" viewBox="0 0 24 24">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">
+            PDF Preview
+            <span id="previewStatus"></span>
+          </h2>
+
+          <div class="pdf-preview-cont">
+            <iframe id="pdfPreviewFrame" class="pdf-preview-iframe" title="A5 PDF Vorschau"></iframe>
+            <div id="loadingOverlay" class="pdf-loading-overlay" style="display: none">
+              <div class="spinner"></div>
+              <p>PDF wird generiert...</p>
+            </div>
+          </div>
+
+          <div class="preview-btns">
+            <button type="button" id="downloadPdfBtn" class="btn primary-btn">
+              <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              PDF herunterladen (A5)
+            </button>
+            <button type="button" id="printPdfBtn" class="btn secondary-btn">
+              <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" viewBox="0 0 24 24">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              Drucken
+            </button>
+            <button type="button" id="openTabBtn" class="btn secondary-btn icon-only" aria-labelledby="newTabBtnText">
+              <span id="newTabBtnText">In neuem Tab öffnen</span>
+              <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
   </body>
 </html>
